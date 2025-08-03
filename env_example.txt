@@ -1,0 +1,27 @@
+# OpenAI API Configuration
+# Get your API key from: https://platform.openai.com/api-keys
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Website URL for testing
+# Default: http://mission-codex.s3-website.ap-south-1.amazonaws.com/
+TARGET_WEBSITE=http://mission-codex.s3-website.ap-south-1.amazonaws.com/
+
+# API Configuration
+# API endpoint for review functionality
+API_ENDPOINT=http://13.204.81.166:8080/api/v1/review
+
+# Browser Configuration
+BROWSER_HEADLESS=true
+BROWSER_TIMEOUT=30
+
+# Optional: Customize the model (default is gpt-4)
+# OPENAI_MODEL=gpt-4o-mini
+
+# Redis Configuration (for sanitization agent testing)
+# Default: localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+
+# Optional: Deepseek API Configuration (for sanitization agent testing)
+# DEEPSEEK_API_KEY=your_deepseek_api_key_here 
