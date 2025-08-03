@@ -1,0 +1,342 @@
+# promptfoo.yaml - AI PR Review Application Test Suite
+# Comprehensive test cases for the AI-powered PR review application
+
+# Define prompts for testing different scenarios
+prompts:
+  - "Review this PR: {{prUrl}}"
+  - "Analyze the code changes in this PR: {{prUrl}}"
+  - "Check for security issues in: {{prUrl}}"
+  - "Review for performance issues: {{prUrl}}"
+  - "Quick review of: {{prUrl}}"
+
+# Test scenarios for the AI PR Review application
+tests:
+  # 1. Basic API functionality tests
+  - name: "Valid PR Review Request"
+    description: "Test successful PR review with valid GitHub URL"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+      comments: "array"
+      markdownSummary: "string"
+
+  - name: "Invalid GitHub PR URL"
+    description: "Test error handling for invalid PR URL"
+    vars:
+      prUrl: "https://invalid-url.com/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      error: "string"
+
+  - name: "Missing API Key Authentication"
+    description: "Test authentication failure when API key is missing"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      status: 401
+
+  - name: "Invalid API Key"
+    description: "Test authentication failure with invalid API key"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      status: 401
+
+  - name: "Missing PR URL"
+    description: "Test validation error when PR URL is missing"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      status: 400
+      error: "string"
+
+  - name: "Empty PR URL"
+    description: "Test validation error when PR URL is empty"
+    vars:
+      prUrl: ""
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      status: 400
+      error: "string"
+
+  # 2. Response structure validation tests
+  - name: "Review Response Structure Validation"
+    description: "Validate the structure of successful review response"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel:
+        type: "string"
+        enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+      comments:
+        type: "array"
+        items:
+          file: "string"
+          line: "number"
+          type:
+            enum: ["SUGGESTION", "WARNING", "ERROR", "INFO", "MUST_FIX"]
+          comment: "string"
+      markdownSummary: "string"
+
+  # 3. Content quality tests
+  - name: "Review Comments Quality"
+    description: "Validate that review comments are meaningful and helpful"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      comments:
+        type: "array"
+        minLength: 0
+        items:
+          comment:
+            minLength: 20  # Comments should be meaningful
+            notContains: ["generic", "placeholder", "TODO"]
+
+  - name: "Risk Level Assessment"
+    description: "Test that risk levels are appropriately assigned"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel:
+        type: "string"
+        enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+  # 4. Different review types
+  - name: "Security-Focused Review"
+    description: "Test security-focused code review"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Check for security issues in: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+      comments:
+        type: "array"
+        items:
+          type:
+            enum: ["WARNING", "ERROR", "MUST_FIX"]
+
+  - name: "Performance-Focused Review"
+    description: "Test performance-focused code review"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review for performance issues: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+      comments:
+        type: "array"
+        items:
+          comment:
+            contains: ["performance", "efficiency", "optimization"]
+
+  - name: "Quick Review"
+    description: "Test quick review functionality"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Quick review of: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+      comments:
+        type: "array"
+        maxLength: 5  # Quick review should be concise
+
+  # 5. Edge case tests
+  - name: "Very Long PR URL"
+    description: "Test handling of extremely long PR URLs"
+    vars:
+      prUrl: "https://github.com/very-long-owner-name/very-long-repository-name-with-many-characters/pull/123456789"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+
+  - name: "Special Characters in PR URL"
+    description: "Test handling of special characters in PR URL"
+    vars:
+      prUrl: "https://github.com/owner/repo-name-with-dashes/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+
+  - name: "Non-Existent PR"
+    description: "Test handling of non-existent PR URLs"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/999999"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      error: "string"
+
+  # 6. Code quality assessment tests
+  - name: "Code Quality Review"
+    description: "Test that the AI provides meaningful code quality feedback"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Analyze the code changes in this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      comments:
+        type: "array"
+        items:
+          comment:
+            contains: ["quality", "style", "best practice", "improvement"]
+
+  - name: "Bug Detection"
+    description: "Test that the AI can identify potential bugs"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      comments:
+        type: "array"
+        items:
+          type:
+            enum: ["WARNING", "ERROR", "MUST_FIX"]
+
+  # 7. Response format tests
+  - name: "Markdown Summary Format"
+    description: "Test that markdown summary is properly formatted"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      markdownSummary:
+        type: "string"
+        minLength: 50
+        contains: ["##", "###", "-", "*"]  # Should contain markdown formatting
+
+  - name: "Comment Structure"
+    description: "Test that comments have proper structure"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      comments:
+        type: "array"
+        items:
+          file:
+            type: "string"
+            minLength: 1
+          line:
+            type: "number"
+            min: 1
+          type:
+            type: "string"
+            enum: ["SUGGESTION", "WARNING", "ERROR", "INFO", "MUST_FIX"]
+          comment:
+            type: "string"
+            minLength: 10
+
+  # 8. Consistency tests
+  - name: "Review Consistency"
+    description: "Test that similar PRs get consistent review quality"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      riskLevel: "string"
+      comments:
+        type: "array"
+        minLength: 0
+
+  # 9. Error handling tests
+  - name: "GitHub API Error Handling"
+    description: "Test handling of GitHub API errors"
+    vars:
+      prUrl: "https://github.com/invalid-owner/invalid-repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      error: "string"
+
+  - name: "OpenAI API Error Handling"
+    description: "Test handling of OpenAI API errors"
+    vars:
+      prUrl: "https://github.com/owner/repo/pull/1"
+    prompt: "Review this PR: {{prUrl}}"
+    provider: "openai:gpt-4"
+    expected:
+      error: "string"
+
+# Configuration for different environments
+environments:
+  development:
+    openaiApiKey: "${OPENAI_API_KEY}"
+    baseUrl: "http://localhost:8080"
+  
+  staging:
+    openaiApiKey: "${OPENAI_API_KEY}"
+    baseUrl: "https://staging-api.example.com"
+  
+  production:
+    openaiApiKey: "${OPENAI_API_KEY}"
+    baseUrl: "https://api.example.com"
+
+# Test suites for different scenarios
+testSuites:
+  - name: "API Functionality"
+    tests:
+      - "Valid PR Review Request"
+      - "Invalid GitHub PR URL"
+      - "Missing API Key Authentication"
+      - "Review Response Structure Validation"
+  
+  - name: "Content Quality"
+    tests:
+      - "Review Comments Quality"
+      - "Risk Level Assessment"
+      - "Code Quality Review"
+      - "Bug Detection"
+  
+  - name: "Review Types"
+    tests:
+      - "Security-Focused Review"
+      - "Performance-Focused Review"
+      - "Quick Review"
+  
+  - name: "Error Handling"
+    tests:
+      - "GitHub API Error Handling"
+      - "OpenAI API Error Handling"
+      - "Non-Existent PR"
+  
+  - name: "Edge Cases"
+    tests:
+      - "Very Long PR URL"
+      - "Special Characters in PR URL"
+      - "Review Consistency"
+  
+  - name: "Response Format"
+    tests:
+      - "Markdown Summary Format"
+      - "Comment Structure"
+
+# Provider configuration
+providers:
+  - id: "openai:gpt-4"
+    config:
+      apiKey: "${OPENAI_API_KEY}"
+      temperature: 0.3
+      maxTokens: 2000 
